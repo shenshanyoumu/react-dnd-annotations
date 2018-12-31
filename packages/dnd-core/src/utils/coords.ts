@@ -1,58 +1,51 @@
-import { State } from '../reducers/dragOffset'
-import { XYCoord } from '..'
+import { State } from "../reducers/dragOffset";
+import { XYCoord } from "..";
 
 /**
- * Coordinate addition
+ * 坐标加法运算
  * @param a The first coordinate
  * @param b The second coordinate
  */
 export function add(a: XYCoord, b: XYCoord): XYCoord {
-	return {
-		x: a.x + b.x,
-		y: a.y + b.y,
-	}
+  return {
+    x: a.x + b.x,
+    y: a.y + b.y
+  };
 }
 
 /**
- * Coordinate subtraction
+ * 坐标减法运算
  * @param a The first coordinate
  * @param b The second coordinate
  */
 export function subtract(a: XYCoord, b: XYCoord): XYCoord {
-	return {
-		x: a.x - b.x,
-		y: a.y - b.y,
-	}
+  return {
+    x: a.x - b.x,
+    y: a.y - b.y
+  };
 }
 
-/**
- * Returns the cartesian distance of the drag source component's position, based on its position
- * at the time when the current drag operation has started, and the movement difference.
- *
- * Returns null if no item is being dragged.
- *
- * @param state The offset state to compute from
- */
+//计算被拖拽的组件初始坐标与拖拽中计算的坐标的笛卡尔距离
 export function getSourceClientOffset(state: State) {
-	const { clientOffset, initialClientOffset, initialSourceClientOffset } = state
-	if (!clientOffset || !initialClientOffset || !initialSourceClientOffset) {
-		return null
-	}
-	return subtract(
-		add(clientOffset, initialSourceClientOffset),
-		initialClientOffset,
-	)
+  const {
+    clientOffset,
+    initialClientOffset,
+    initialSourceClientOffset
+  } = state;
+  if (!clientOffset || !initialClientOffset || !initialSourceClientOffset) {
+    return null;
+  }
+  return subtract(
+    add(clientOffset, initialSourceClientOffset),
+    initialClientOffset
+  );
 }
 
-/**
- * Determines the x,y offset between the client offset and the initial client offset
- *
- * @param state The offset state to compute from
- */
+//计算拖拽开始坐标与拖拽中坐标的偏移，注意区分坐标的视口偏移和文档偏移的差异
 export function getDifferenceFromInitialOffset(state: State): XYCoord | null {
-	const { clientOffset, initialClientOffset } = state
-	if (!clientOffset || !initialClientOffset) {
-		return null
-	}
-	return subtract(clientOffset, initialClientOffset)
+  const { clientOffset, initialClientOffset } = state;
+  if (!clientOffset || !initialClientOffset) {
+    return null;
+  }
+  return subtract(clientOffset, initialClientOffset);
 }
