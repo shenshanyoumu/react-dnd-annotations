@@ -1,11 +1,12 @@
-let emptyImage: HTMLImageElement | undefined
+let emptyImage: HTMLImageElement | undefined;
 
+// 基于base64编码得到空图片
 export default function getEmptyImage(): HTMLImageElement {
-	if (!emptyImage) {
-		emptyImage = new Image()
-		emptyImage.src =
-			'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
-	}
+  if (!emptyImage) {
+    emptyImage = new Image();
+    emptyImage.src =
+      "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+  }
 
-	return emptyImage
+  return emptyImage;
 }

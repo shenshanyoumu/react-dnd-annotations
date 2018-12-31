@@ -1,42 +1,44 @@
-declare var require: any
+declare var require: any;
 
-const union = require('lodash/union')
-const without = require('lodash/without')
+const union = require("lodash/union");
+const without = require("lodash/without");
 
+// 重言判定
 type NodePredicate = (node: any) => boolean;
 
 export default class EnterLeaveCounter {
-	private entered: any[] = []
-	private isNodeInDocument: NodePredicate
+  private entered: any[] = [];
+  private isNodeInDocument: NodePredicate;
 
-	constructor(isNodeInDocument: NodePredicate) {
-		this.isNodeInDocument = isNodeInDocument;
-	}
+  constructor(isNodeInDocument: NodePredicate) {
+    this.isNodeInDocument = isNodeInDocument;
+  }
 
-	public enter(enteringNode: any) {
-		const previousLength = this.entered.length
+  // 拖拽DOM树中节点的处理
+  public enter(enteringNode: any) {
+    const previousLength = this.entered.length;
 
-		const isNodeEntered = (node: any) =>
-			this.isNodeInDocument(node) &&
-			(!node.contains || node.contains(enteringNode))
+    const isNodeEntered = (node: any) =>
+      this.isNodeInDocument(node) &&
+      (!node.contains || node.contains(enteringNode));
 
-		this.entered = union(this.entered.filter(isNodeEntered), [enteringNode])
+    this.entered = union(this.entered.filter(isNodeEntered), [enteringNode]);
 
-		return previousLength === 0 && this.entered.length > 0
-	}
+    return previousLength === 0 && this.entered.length > 0;
+  }
 
-	public leave(leavingNode: any) {
-		const previousLength = this.entered.length
+  public leave(leavingNode: any) {
+    const previousLength = this.entered.length;
 
-		this.entered = without(
-			this.entered.filter(this.isNodeInDocument),
-			leavingNode,
-		)
+    this.entered = without(
+      this.entered.filter(this.isNodeInDocument),
+      leavingNode
+    );
 
-		return previousLength > 0 && this.entered.length === 0
-	}
+    return previousLength > 0 && this.entered.length === 0;
+  }
 
-	public reset() {
-		this.entered = []
-	}
+  public reset() {
+    this.entered = [];
+  }
 }

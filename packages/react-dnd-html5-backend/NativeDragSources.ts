@@ -1,97 +1,100 @@
-import * as NativeTypes from './NativeTypes'
-import { DragDropMonitor } from 'dnd-core'
+import * as NativeTypes from "./NativeTypes";
+import { DragDropMonitor } from "dnd-core";
 
+// dataTransfer是H5提供的拖拽API之一，用于保存拖拽过程中的状态数据
 function getDataFromDataTransfer(
-	dataTransfer: any,
-	typesToTry: string[],
-	defaultValue: any,
+  dataTransfer: any,
+  typesToTry: string[],
+  defaultValue: any
 ) {
-	const result = typesToTry.reduce(
-		(resultSoFar, typeToTry) => resultSoFar || dataTransfer.getData(typeToTry),
-		null,
-	)
+  const result = typesToTry.reduce(
+    (resultSoFar, typeToTry) => resultSoFar || dataTransfer.getData(typeToTry),
+    null
+  );
 
-	return result != null ? result : defaultValue
+  return result != null ? result : defaultValue;
 }
 
 const nativeTypesConfig: {
-	[key: string]: {
-		exposeProperty: string
-		matchesType?: string
-		matchesTypes?: string[]
-		getData: (dataTransfer: any, matchesTypes: any) => any
-	}
+  [key: string]: {
+    exposeProperty: string;
+    matchesType?: string;
+    matchesTypes?: string[];
+    getData: (dataTransfer: any, matchesTypes: any) => any;
+  };
 } = {
-	[NativeTypes.FILE]: {
-		exposeProperty: 'files',
-		matchesTypes: ['Files'],
-		getData: (dataTransfer: any) =>
-			Array.prototype.slice.call(dataTransfer.files),
-	},
-	[NativeTypes.URL]: {
-		exposeProperty: 'urls',
-		matchesTypes: ['Url', 'text/uri-list'],
-		getData: (dataTransfer: any, matchesTypes: any) =>
-			getDataFromDataTransfer(dataTransfer, matchesTypes, '').split('\n'),
-	},
-	[NativeTypes.TEXT]: {
-		exposeProperty: 'text',
-		matchesTypes: ['Text', 'text/plain'],
-		getData: (dataTransfer: any, matchesTypes: any) =>
-			getDataFromDataTransfer(dataTransfer, matchesTypes, ''),
-	},
-}
+  [NativeTypes.FILE]: {
+    exposeProperty: "files",
+    matchesTypes: ["Files"],
+    getData: (dataTransfer: any) =>
+      Array.prototype.slice.call(dataTransfer.files)
+  },
+  [NativeTypes.URL]: {
+    exposeProperty: "urls",
+    matchesTypes: ["Url", "text/uri-list"],
+    getData: (dataTransfer: any, matchesTypes: any) =>
+      getDataFromDataTransfer(dataTransfer, matchesTypes, "").split("\n")
+  },
+  [NativeTypes.TEXT]: {
+    exposeProperty: "text",
+    matchesTypes: ["Text", "text/plain"],
+    getData: (dataTransfer: any, matchesTypes: any) =>
+      getDataFromDataTransfer(dataTransfer, matchesTypes, "")
+  }
+};
 
 export function createNativeDragSource(type: any) {
-	const { exposeProperty, matchesTypes, getData } = nativeTypesConfig[type]
+  const { exposeProperty, matchesTypes, getData } = nativeTypesConfig[type];
 
-	return class NativeDragSource {
-		public item: any
+  return class NativeDragSource {
+    public item: any;
 
-		constructor() {
-			this.item = {
-				get [exposeProperty]() {
-					// tslint:disable-next-line no-console
-					console.warn(
-						`Browser doesn't allow reading "${exposeProperty}" until the drop event.`,
-					)
-					return null
-				},
-			}
-		}
+    constructor() {
+      this.item = {
+        get [exposeProperty]() {
+          // tslint:disable-next-line no-console
+          console.warn(
+            `Browser doesn't allow reading "${exposeProperty}" until the drop event.`
+          );
+          return null;
+        }
+      };
+    }
 
-		public mutateItemByReadingDataTransfer(dataTransfer: any) {
-			delete this.item[exposeProperty]
-			this.item[exposeProperty] = getData(dataTransfer, matchesTypes)
-		}
+    public mutateItemByReadingDataTransfer(dataTransfer: any) {
+      delete this.item[exposeProperty];
+      this.item[exposeProperty] = getData(dataTransfer, matchesTypes);
+    }
 
-		public canDrag() {
-			return true
-		}
+    public canDrag() {
+      return true;
+    }
 
-		public beginDrag() {
-			return this.item
-		}
+    public beginDrag() {
+      return this.item;
+    }
 
-		public isDragging(monitor: DragDropMonitor, handle: string) {
-			return handle === monitor.getSourceId()
-		}
+    public isDragging(monitor: DragDropMonitor, handle: string) {
+      return handle === monitor.getSourceId();
+    }
 
-		public endDrag() {
-			// empty
-		}
-	}
+    public endDrag() {
+      // empty
+    }
+  };
 }
 
 export function matchNativeItemType(dataTransfer: any) {
-	const dataTransferTypes = Array.prototype.slice.call(dataTransfer.types || [])
+  const dataTransferTypes = Array.prototype.slice.call(
+    dataTransfer.types || []
+  );
 
-	return (
-		Object.keys(nativeTypesConfig).filter(nativeItemType => {
-			const { matchesTypes } = nativeTypesConfig[nativeItemType]
-			return (matchesTypes as string[]).some(
-				t => dataTransferTypes.indexOf(t) > -1,
-			)
-		})[0] || null
-	)
+  return (
+    Object.keys(nativeTypesConfig).filter(nativeItemType => {
+      const { matchesTypes } = nativeTypesConfig[nativeItemType];
+      return (matchesTypes as string[]).some(
+        t => dataTransferTypes.indexOf(t) > -1
+      );
+    })[0] || null
+  );
 }
