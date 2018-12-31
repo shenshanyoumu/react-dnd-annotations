@@ -96,18 +96,31 @@ export interface DragDropMonitor {
   getDifferenceFromInitialOffset(): XYCoord | null;
 }
 
+/**
+ * 事件处理注册中心，在redux的action中有对应的一些action
+ */
 export interface HandlerRegistry {
+  // 通过下面两个方法来注册拖拽源/拖拽目标，只有被注册过才能响应事件
   addSource(type: SourceType, source: DragSource): string;
   addTarget(type: TargetType, target: DropTarget): string;
+
   containsHandler(handler: DragSource | DropTarget): boolean;
+
+  // 获得事先注册的拖拽源组件
   getSource(sourceId: string, includePinned?: boolean): DragSource;
+
+  // 获得拖拽源组件类型
   getSourceType(sourceId: string): SourceType;
   getTargetType(targetId: string): TargetType;
   getTarget(targetId: string): DropTarget;
+
+  // 判定组件是否为拖拽源
   isSourceId(handlerId: string): boolean;
   isTargetId(handlerId: string): boolean;
   removeSource(sourceId: string): void;
   removeTarget(targetId: string): void;
+
+  // 为了保证每次只有一个拖拽行为实例，需要将拖拽源“钉”起来，直到本次拖拽结束
   pinSource(sourceId: string): void;
   unpinSource(): void;
 }
@@ -132,11 +145,13 @@ export interface BeginDragOptions {
   getSourceClientOffset?: (sourceId: Identifier) => XYCoord;
 }
 
+// 初始化redux中管理的拖拽位置相关数据
 export interface InitCoordsPayload {
   clientOffset: XYCoord | null;
   sourceClientOffset: XYCoord | null;
 }
 
+// 初始化redux管理的拖拽源组件基础信息
 export interface BeginDragPayload {
   itemType: Identifier;
   item: any;
@@ -146,6 +161,7 @@ export interface BeginDragPayload {
   isSourcePublic: boolean;
 }
 
+// 当拖拽源被拖拽到拖拽目标组件容器上方，需要产生的hover相关数据
 export interface HoverPayload {
   targetIds: Identifier[];
   clientOffset: XYCoord | null;
@@ -155,10 +171,12 @@ export interface HoverOptions {
   clientOffset?: XYCoord;
 }
 
+// 当拖放动作发生，需要的数据
 export interface DropPayload {
   dropResult: any;
 }
 
+// 拖放目标组件容器
 export interface TargetIdPayload {
   targetId: string;
 }
@@ -167,6 +185,7 @@ export interface SourceIdPayload {
   sourceId: string;
 }
 
+// 定义的拖拽动作接口，暴露给开发者
 export interface DragDropActions {
   beginDrag(sourceIds: string[], options?: any): Action<BeginDragPayload>;
   publishDragSource(): SentinelAction;
@@ -179,9 +198,17 @@ export interface DragDropActions {
 export interface DragDropManager<Context> {
   getContext(): Context;
   getMonitor(): DragDropMonitor;
+
+  // 获得宿主环境下拖拽真正的后端实现，比如H5的原生拖拽能力
   getBackend(): Backend;
+
+  //获得当前拖拽管理器管理的一系列事件处理注册
   getRegistry(): HandlerRegistry;
+
+  // 触发store的state发生变化的action集合
   getActions(): DragDropActions;
+
+  // redux中store.dispatch
   dispatch(action: any): void;
 }
 

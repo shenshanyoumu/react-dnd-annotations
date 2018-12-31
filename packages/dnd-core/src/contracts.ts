@@ -1,51 +1,53 @@
-declare var require: any
+declare var require: any;
 
-import { DragSource, DropTarget, Identifier } from './interfaces'
-const invariant = require('invariant')
+import { DragSource, DropTarget, Identifier } from "./interfaces";
+const invariant = require("invariant");
 
+// 下面的函数
 export function validateSourceContract(source: DragSource) {
-	invariant(
-		typeof source.canDrag === 'function',
-		'Expected canDrag to be a function.',
-	)
-	invariant(
-		typeof source.beginDrag === 'function',
-		'Expected beginDrag to be a function.',
-	)
-	invariant(
-		typeof source.endDrag === 'function',
-		'Expected endDrag to be a function.',
-	)
+  invariant(
+    typeof source.canDrag === "function",
+    "Expected canDrag to be a function."
+  );
+  invariant(
+    typeof source.beginDrag === "function",
+    "Expected beginDrag to be a function."
+  );
+  invariant(
+    typeof source.endDrag === "function",
+    "Expected endDrag to be a function."
+  );
 }
 
 export function validateTargetContract(target: DropTarget) {
-	invariant(
-		typeof target.canDrop === 'function',
-		'Expected canDrop to be a function.',
-	)
-	invariant(
-		typeof target.hover === 'function',
-		'Expected hover to be a function.',
-	)
-	invariant(
-		typeof target.drop === 'function',
-		'Expected beginDrag to be a function.',
-	)
+  invariant(
+    typeof target.canDrop === "function",
+    "Expected canDrop to be a function."
+  );
+  invariant(
+    typeof target.hover === "function",
+    "Expected hover to be a function."
+  );
+  invariant(
+    typeof target.drop === "function",
+    "Expected beginDrag to be a function."
+  );
 }
 
+// 验证拖拽类型兼容性
 export function validateType(
-	type: Identifier | Identifier[],
-	allowArray?: boolean,
+  type: Identifier | Identifier[],
+  allowArray?: boolean
 ) {
-	if (allowArray && Array.isArray(type)) {
-		type.forEach(t => validateType(t, false))
-		return
-	}
+  if (allowArray && Array.isArray(type)) {
+    type.forEach(t => validateType(t, false));
+    return;
+  }
 
-	invariant(
-		typeof type === 'string' || typeof type === 'symbol',
-		allowArray
-			? 'Type can only be a string, a symbol, or an array of either.'
-			: 'Type can only be a string or a symbol.',
-	)
+  invariant(
+    typeof type === "string" || typeof type === "symbol",
+    allowArray
+      ? "Type can only be a string, a symbol, or an array of either."
+      : "Type can only be a string or a symbol."
+  );
 }

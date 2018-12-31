@@ -97,10 +97,13 @@ export default class DragDropManagerImpl<Context>
     );
   }
 
+  // 利用store.dispactch触发事件
   public dispatch(action: any) {
     this.store.dispatch(action);
   }
 
+  // 根据redux中保存拖拽源组件或者目标组件，表明整个拖拽行为是否结束/或者未开始；
+  // 当拖拽行为结束，则为了性能问题，将宿主拖拽能力的后端与react-dnd断开联系
   private handleRefCountChange = () => {
     const shouldSetUp = this.store.getState().refCount > 0;
     if (shouldSetUp && !this.isSetUp) {
